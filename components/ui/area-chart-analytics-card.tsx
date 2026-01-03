@@ -98,10 +98,10 @@ export function AreaChartAnalyticsCard({
             {(() => {
               const currencyMap: Record<string, { locale: string; currency: string }> = {
                 USD: { locale: "en-US", currency: "USD" },
-                EUR: { locale: "de-DE", currency: "EUR" },
+                EUR: { locale: "en-US", currency: "EUR" }, // Use en-US locale for EUR to get standard formatting
                 GBP: { locale: "en-GB", currency: "GBP" },
                 INR: { locale: "en-IN", currency: "INR" },
-                BDT: { locale: "en-BD", currency: "BDT" },
+                BDT: { locale: "en-US", currency: "BDT" },
               }
               const config = currencyMap[currency] || currencyMap.USD
               return new Intl.NumberFormat(config.locale, {
@@ -148,10 +148,10 @@ export function AreaChartAnalyticsCard({
                       // Value is already converted in campaignData, just format it
                       const currencyMap: Record<string, { locale: string; currency: string }> = {
                         USD: { locale: "en-US", currency: "USD" },
-                        EUR: { locale: "de-DE", currency: "EUR" },
+                        EUR: { locale: "en-US", currency: "EUR" }, // Use en-US locale for EUR to get standard formatting
                         GBP: { locale: "en-GB", currency: "GBP" },
                         INR: { locale: "en-IN", currency: "INR" },
-                        BDT: { locale: "en-BD", currency: "BDT" },
+                        BDT: { locale: "en-US", currency: "BDT" },
                       }
                       const config = currencyMap[currency] || currencyMap.USD
                       return new Intl.NumberFormat(config.locale, {
@@ -195,4 +195,7 @@ export function AreaChartAnalyticsCard({
     </Card>
   );
 }
+
+// Default export for dynamic imports
+export default AreaChartAnalyticsCard;
 

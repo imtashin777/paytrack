@@ -2,7 +2,7 @@
 
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { AuthFormSplitScreen } from "@/components/ui/auth-form-split-screen"
+import { LoginFormSplitScreen } from "@/components/ui/login-form-split-screen"
 import { FileText } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
@@ -45,20 +45,18 @@ export default function SignInPage() {
           {error}
         </div>
       )}
-      <AuthFormSplitScreen
+      <LoginFormSplitScreen
         logo={
           <Link href="/" className="flex items-center gap-2">
-            <FileText className="h-6 w-6 text-primary" />
-            <span className="text-2xl font-bold">PayTrack</span>
+            <FileText className="h-6 w-6 text-white" />
+            <span className="text-2xl font-bold text-white">PayTrack</span>
           </Link>
         }
-        title="Welcome back!"
-        description="Sign in by entering the information below"
-        imageSrc="https://images.unsplash.com/photo-1714715350295-5f00e902f0d7?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8d2FsbHBhZXJ8ZW58MHwxfDB8fHww&auto=format&fit=crop&q=60&w=900"
-        imageAlt="A beautiful landscape with rolling hills and a road."
+        imageSrc="https://images.unsplash.com/photo-1509316785289-025f5b846b35?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=900"
+        imageAlt="A beautiful desert landscape with rolling sand dunes."
         onSubmit={handleSubmit}
+        signupHref="/auth/signup"
         forgotPasswordHref="#"
-        createAccountHref="/auth/signup"
       />
     </div>
   )

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Label } from "@/components/ui/label"
+import { fetchExchangeRates } from "@/lib/exchange-rates"
 
 const CURRENCIES = [
   { code: "USD", symbol: "$", name: "US Dollar" },
@@ -65,46 +66,100 @@ export function DashboardCurrencySelector({
   )
 }
 
-// Exchange rates relative to USD (base currency)
-// These are approximate rates - in production, you'd fetch from an API
-const EXCHANGE_RATES: Record<string, number> = {
-  USD: 1.0,
-  EUR: 0.92,    // 1 USD = 0.92 EUR
-  GBP: 0.79,    // 1 USD = 0.79 GBP
-  INR: 83.0,    // 1 USD = 83 INR
-  BDT: 110.0,   // 1 USD = 110 BDT
+// Exchange rates cache (will be populated with real-time data)
+let exchangeRatesCache: Record<string, number> | null = null
+
+/**
+ * Get exchange rates (with caching)
+ */
+async function getExchangeRates(): Promise<Record<string, number>> {
+  if (!exchangeRatesCache) {
+    exchangeRatesCache = await fetchExchangeRates()
+  }
+  return exchangeRatesCache
 }
 
 /**
- * Convert amount from USD (base currency) to target currency
+ * Convert amount from one currency to another using real-time exchange rates
  */
-export function convertCurrency(amount: number, targetCurrency: string, baseCurrency: string = "USD"): number {
+export async function convertCurrency(
+  amount: number, 
+  targetCurrency: string, 
+  baseCurrency: string = "USD"
+): Promise<number> {
   if (targetCurrency === baseCurrency) {
     return amount
   }
-  
-  // Convert from base to USD first if needed
-  let amountInUSD = amount
-  if (baseCurrency !== "USD") {
-    const baseToUSD = 1 / (EXCHANGE_RATES[baseCurrency] || 1)
-    amountInUSD = amount * baseToUSD
+
+  try {
+    const rates = await getExchangeRates()
+    
+    // All rates are relative to USD
+    const baseRate = rates[baseCurrency] || 1.0
+    const targetRate = rates[targetCurrency] || 1.0
+    
+    // Convert: baseCurrency → USD → targetCurrency
+    const amountInUSD = amount / baseRate
+    return amountInUSD * targetRate
+  } catch (error) {
+    console.error('Error converting currency:', error)
+    // Fallback to approximate rates
+    const fallbackRates: Record<string, number> = {
+      USD: 1.0,
+      EUR: 0.92,
+      GBP: 0.79,
+      INR: 83.0,
+      BDT: 110.0,
+    }
+    const baseRate = fallbackRates[baseCurrency] || 1.0
+    const targetRate = fallbackRates[targetCurrency] || 1.0
+    return (amount / baseRate) * targetRate
   }
-  
-  // Convert from USD to target currency
-  const rate = EXCHANGE_RATES[targetCurrency] || 1
-  return amountInUSD * rate
 }
 
-export function formatCurrency(amount: number, currency: string = "USD", baseCurrency: string = "USD"): string {
-  // Convert the amount to the target currency
-  const convertedAmount = convertCurrency(amount, currency, baseCurrency)
+/**
+ * Synchronous version for use in React components (uses cached rates)
+ */
+export function convertCurrencySync(
+  amount: number, 
+  targetCurrency: string, 
+  baseCurrency: string = "USD",
+  rates?: Record<string, number>
+): number {
+  if (targetCurrency === baseCurrency) {
+    return amount
+  }
+
+  const exchangeRates = rates || exchangeRatesCache || {
+    USD: 1.0,
+    EUR: 0.92,
+    GBP: 0.79,
+    INR: 83.0,
+    BDT: 110.0,
+  }
+  
+  const baseRate = exchangeRates[baseCurrency] || 1.0
+  const targetRate = exchangeRates[targetCurrency] || 1.0
+  
+  const amountInUSD = amount / baseRate
+  return amountInUSD * targetRate
+}
+
+export function formatCurrency(
+  amount: number, 
+  currency: string = "USD", 
+  baseCurrency: string = "USD",
+  rates?: Record<string, number>
+): string {
+  // Convert the amount to the target currency (sync version with rates)
+  const convertedAmount = convertCurrencySync(amount, currency, baseCurrency, rates)
   
   const currencyMap: Record<string, { locale: string; currency: string }> = {
     USD: { locale: "en-US", currency: "USD" },
-    EUR: { locale: "de-DE", currency: "EUR" },
+    EUR: { locale: "en-US", currency: "EUR" },
     GBP: { locale: "en-GB", currency: "GBP" },
     INR: { locale: "en-IN", currency: "INR" },
-    BDT: { locale: "en-BD", currency: "BDT" },
+    BDT: { locale: "en-US", currency: "BDT" },
   }
 
   const config = currencyMap[currency] || currencyMap.USD
@@ -116,4 +171,8 @@ export function formatCurrency(amount: number, currency: string = "USD", baseCur
     maximumFractionDigits: 2,
   }).format(convertedAmount)
 }
+
+// Export for use in other components
+export { CURRENCIES }
+export { fetchExchangeRates } from "@/lib/exchange-rates"
 

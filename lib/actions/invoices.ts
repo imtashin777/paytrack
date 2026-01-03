@@ -143,16 +143,44 @@ export async function getInvoiceStats() {
     throw new Error("Unauthorized")
   }
 
-  const invoices = await getInvoices()
+  // Optimize: Only fetch what we need for stats, not full client data
+  const invoices = await prisma.invoice.findMany({
+    where: { userId: session.user.id },
+    select: {
+      id: true,
+      amount: true,
+      status: true,
+      dueDate: true,
+      lineItems: true,
+      taxRate: true,
+      discount: true,
+      shipping: true,
+      createdAt: true,
+    },
+    orderBy: { createdAt: "desc" },
+  })
 
-  const total = invoices.length
-  const unpaid = invoices.filter(
+  // Calculate overdue status efficiently
+  const today = new Date()
+  const invoicesWithStatus = invoices.map((invoice) => {
+    let status = invoice.status
+    if (
+      invoice.status === InvoiceStatus.UNPAID &&
+      invoice.dueDate < today
+    ) {
+      status = InvoiceStatus.OVERDUE
+    }
+    return { ...invoice, status }
+  })
+
+  const total = invoicesWithStatus.length
+  const unpaid = invoicesWithStatus.filter(
     (inv) => inv.status === InvoiceStatus.UNPAID
   ).length
-  const overdue = invoices.filter(
+  const overdue = invoicesWithStatus.filter(
     (inv) => inv.status === InvoiceStatus.OVERDUE
   ).length
-  const paid = invoices.filter(
+  const paid = invoicesWithStatus.filter(
     (inv) => inv.status === InvoiceStatus.PAID
   ).length
 
@@ -177,16 +205,25 @@ export async function getInvoiceStats() {
     return inv.amount || 0
   }
 
-  const totalRevenue = invoices.reduce((sum, inv) => sum + calculateInvoiceTotal(inv), 0)
-  const unpaidAmount = invoices
-    .filter((inv) => inv.status === InvoiceStatus.UNPAID || inv.status === InvoiceStatus.OVERDUE)
-    .reduce((sum, inv) => sum + calculateInvoiceTotal(inv), 0)
-  const paidAmount = invoices
-    .filter((inv) => inv.status === InvoiceStatus.PAID)
-    .reduce((sum, inv) => sum + calculateInvoiceTotal(inv), 0)
-  const overdueAmount = invoices
-    .filter((inv) => inv.status === InvoiceStatus.OVERDUE)
-    .reduce((sum, inv) => sum + calculateInvoiceTotal(inv), 0)
+  // Calculate totals in a single pass for better performance
+  let totalRevenue = 0
+  let unpaidAmount = 0
+  let paidAmount = 0
+  let overdueAmount = 0
+
+  for (const inv of invoicesWithStatus) {
+    const invoiceTotal = calculateInvoiceTotal(inv)
+    totalRevenue += invoiceTotal
+    
+    if (inv.status === InvoiceStatus.PAID) {
+      paidAmount += invoiceTotal
+    } else if (inv.status === InvoiceStatus.OVERDUE) {
+      overdueAmount += invoiceTotal
+      unpaidAmount += invoiceTotal
+    } else if (inv.status === InvoiceStatus.UNPAID) {
+      unpaidAmount += invoiceTotal
+    }
+  }
 
   return { 
     total, 
@@ -197,7 +234,7 @@ export async function getInvoiceStats() {
     unpaidAmount,
     paidAmount,
     overdueAmount,
-    invoices // Return invoices for chart data
+    invoices: invoicesWithStatus // Return invoices for chart data
   }
 }
 

@@ -3,25 +3,48 @@
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { signUp } from "@/lib/actions/auth"
-import { AuthFormSplitScreen } from "@/components/ui/auth-form-split-screen"
-import { FileText } from "lucide-react"
+import { SignupFormSplitScreen } from "@/components/ui/signup-form-split-screen"
+import { FileText, X } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function SignUpPage() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
 
+  // Auto-dismiss error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [error])
+
   const handleSubmit = async (data: {
+    firstName: string
+    lastName: string
     email: string
     password: string
-    rememberMe?: boolean
+    termsAccepted: boolean
   }) => {
     try {
       setError(null)
       
       // Sign up the user
-      await signUp(data.email, data.password)
+      const signupResult = await signUp(data.email, data.password, data.firstName, data.lastName)
+      
+      // Check if signup returned an error
+      if (signupResult?.error) {
+        setError(signupResult.error)
+        return
+      }
+      
+      if (!signupResult?.success) {
+        setError("Failed to create account. Please try again.")
+        return
+      }
       
       // Automatically sign them in
       const result = await signIn("credentials", {
@@ -39,6 +62,7 @@ export default function SignUpPage() {
         router.refresh()
       }
     } catch (err) {
+      console.error("Signup error:", err)
       const errorMessage = err instanceof Error ? err.message : "Something went wrong. Please try again."
       setError(errorMessage)
     }
@@ -47,24 +71,28 @@ export default function SignUpPage() {
   return (
     <div>
       {error && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-destructive text-destructive-foreground px-4 py-2 rounded-md shadow-lg">
-          {error}
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-destructive text-destructive-foreground px-4 py-3 rounded-md shadow-lg max-w-md w-full mx-4 flex items-center justify-between gap-4">
+          <span className="flex-1">{error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="hover:bg-destructive/80 rounded p-1 transition-colors"
+            aria-label="Close error"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
-      <AuthFormSplitScreen
+      <SignupFormSplitScreen
         logo={
           <Link href="/" className="flex items-center gap-2">
-            <FileText className="h-6 w-6 text-primary" />
-            <span className="text-2xl font-bold">PayTrack</span>
+            <FileText className="h-6 w-6 text-white" />
+            <span className="text-2xl font-bold text-white">PayTrack</span>
           </Link>
         }
-        title="Create an account"
-        description="Sign up to get started with PayTrack"
-        imageSrc="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8d29ya3NwYWNlfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=900"
-        imageAlt="A modern workspace with a laptop and notebook."
+        imageSrc="https://images.unsplash.com/photo-1509316785289-025f5b846b35?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=900"
+        imageAlt="A beautiful desert landscape with rolling sand dunes."
         onSubmit={handleSubmit}
-        forgotPasswordHref="#"
-        createAccountHref="/auth/signin"
+        loginHref="/auth/signin"
       />
     </div>
   )

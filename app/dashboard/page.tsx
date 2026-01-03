@@ -23,22 +23,10 @@ export default async function DashboardPage() {
     const today = new Date()
     today.setHours(0, 0, 0, 0) // Normalize to start of day
     
-    // Generate chart data for last 28 days
-    for (let i = 27; i >= 0; i--) {
-      const date = subDays(today, i)
-      date.setHours(0, 0, 0, 0)
-      
-      const dayInvoices = invoices.filter((inv) => {
-        const invDate = new Date(inv.createdAt)
-        invDate.setHours(0, 0, 0, 0)
-        return invDate.getTime() === date.getTime()
-      })
-      
-      // Calculate actual invoice total including tax, discount, shipping
-      const dayTotal = dayInvoices.reduce((sum, inv) => {
+    // Optimize: Pre-calculate invoice totals once
+    const invoiceTotals = new Map<string, number>()
+    invoices.forEach((inv) => {
         let invoiceTotal = inv.amount || 0
-        
-        // If invoice has line items, calculate from line items
         if (inv.lineItems) {
           try {
             const lineItems = JSON.parse(inv.lineItems as string)
@@ -54,9 +42,24 @@ export default async function DashboardPage() {
             // If parsing fails, use the stored amount
           }
         }
-        
-        return sum + invoiceTotal
-      }, 0)
+      invoiceTotals.set(inv.id, invoiceTotal)
+    })
+
+    // Generate chart data for last 28 days (optimized)
+    for (let i = 27; i >= 0; i--) {
+      const date = subDays(today, i)
+      date.setHours(0, 0, 0, 0)
+      const dateKey = date.getTime()
+      
+      // Use Map for faster lookups
+      const dayTotal = invoices
+        .filter((inv) => {
+          const invDate = new Date(inv.createdAt)
+          invDate.setHours(0, 0, 0, 0)
+          return invDate.getTime() === dateKey
+        })
+        .reduce((sum, inv) => sum + (invoiceTotals.get(inv.id) || 0), 0)
+      
       chartData.push({
         day: format(date, "MMM dd"),
         spend: dayTotal,

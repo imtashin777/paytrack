@@ -3,6 +3,15 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "./prisma"
 import bcrypt from "bcryptjs"
 
+// Validate required environment variables (only in development)
+if (process.env.NODE_ENV === "development" && !process.env.NEXTAUTH_SECRET) {
+  console.warn(
+    "⚠️ NEXTAUTH_SECRET is not set. Please add it to your environment variables.\n" +
+    "Run: openssl rand -base64 32\n" +
+    "Or visit: https://generate-secret.vercel.app/32"
+  )
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
