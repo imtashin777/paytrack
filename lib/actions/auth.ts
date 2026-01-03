@@ -22,7 +22,7 @@ export async function signUp(
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
@@ -31,7 +31,8 @@ export async function signUp(
       },
     })
 
-    return { success: true, user }
+    // Return only serializable data - don't return user object
+    return { success: true }
   } catch (error: any) {
     console.error("Signup error:", error)
     
