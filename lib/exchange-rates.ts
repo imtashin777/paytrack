@@ -29,8 +29,8 @@ export async function fetchExchangeRates(): Promise<Record<string, number>> {
         const now = Date.now()
         // Use cached rates if less than 1 hour old
         if (now - parsed.timestamp < CACHE_DURATION) {
-          delete parsed.timestamp
-          return parsed
+          const { timestamp, ...rates } = parsed
+          return rates
         }
       } catch (e) {
         // Invalid cache, fetch new rates
@@ -73,8 +73,8 @@ export async function fetchExchangeRates(): Promise<Record<string, number>> {
       if (cached) {
         try {
           const parsed: ExchangeRates = JSON.parse(cached)
-          delete parsed.timestamp
-          return parsed
+          const { timestamp, ...rates } = parsed
+          return rates
         } catch (e) {
           // Ignore
         }
