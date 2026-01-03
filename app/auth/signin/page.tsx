@@ -3,13 +3,23 @@
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { LoginFormSplitScreen } from "@/components/ui/login-form-split-screen"
-import { FileText } from "lucide-react"
+import { FileText, X } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function SignInPage() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
+
+  // Auto-dismiss error after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [error])
 
   const handleSubmit = async (data: {
     email: string
@@ -26,13 +36,24 @@ export default function SignInPage() {
       })
 
       if (result?.error) {
-        setError("Invalid email or password")
+        // Show more specific error messages
+        if (result.error === "CredentialsSignin") {
+          setError("Invalid email or password. Please check your credentials and try again.")
+        } else if (result.error.includes("configuration") || result.error.includes("secret")) {
+          setError("Server configuration error. Please contact support.")
+        } else {
+          setError(`Login failed: ${result.error}`)
+        }
+        console.error("Sign in error:", result.error)
         return
       } else if (result?.ok) {
         router.push("/dashboard")
         router.refresh()
+      } else {
+        setError("Login failed. Please try again.")
       }
     } catch (err) {
+      console.error("Sign in exception:", err)
       const errorMessage = err instanceof Error ? err.message : "Something went wrong. Please try again."
       setError(errorMessage)
     }
@@ -41,8 +62,15 @@ export default function SignInPage() {
   return (
     <div>
       {error && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-destructive text-destructive-foreground px-4 py-2 rounded-md shadow-lg">
-          {error}
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-destructive text-destructive-foreground px-4 py-3 rounded-md shadow-lg max-w-md w-full mx-4 flex items-center justify-between gap-4">
+          <span className="flex-1">{error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="hover:bg-destructive/80 rounded p-1 transition-colors"
+            aria-label="Close error"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
       <LoginFormSplitScreen
