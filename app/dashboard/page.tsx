@@ -13,11 +13,25 @@ export default async function DashboardPage() {
     redirect("/auth/signin")
   }
 
-  let stats
-  let chartData = []
+  // Initialize with default values
+  let stats = {
+    total: 0,
+    unpaid: 0,
+    overdue: 0,
+    paid: 0,
+    totalRevenue: 0,
+    unpaidAmount: 0,
+    paidAmount: 0,
+    overdueAmount: 0,
+    invoices: []
+  }
+  let chartData: Array<{ day: string; spend: number }> = []
   
   try {
-    stats = await getInvoiceStats()
+    const fetchedStats = await getInvoiceStats()
+    if (fetchedStats) {
+      stats = fetchedStats
+    }
     const invoices = stats.invoices || []
     
     const today = new Date()
@@ -26,22 +40,22 @@ export default async function DashboardPage() {
     // Optimize: Pre-calculate invoice totals once
     const invoiceTotals = new Map<string, number>()
     invoices.forEach((inv) => {
-        let invoiceTotal = inv.amount || 0
-        if (inv.lineItems) {
-          try {
-            const lineItems = JSON.parse(inv.lineItems as string)
-            if (Array.isArray(lineItems) && lineItems.length > 0) {
-              const subtotal = lineItems.reduce((s: number, item: any) => s + (item.amount || 0), 0)
-              const taxRate = inv.taxRate || 0
-              const taxAmount = (subtotal * taxRate) / 100
-              const discount = inv.discount || 0
-              const shipping = inv.shipping || 0
-              invoiceTotal = subtotal + taxAmount + shipping - discount
-            }
-          } catch (e) {
-            // If parsing fails, use the stored amount
+      let invoiceTotal = inv.amount || 0
+      if (inv.lineItems) {
+        try {
+          const lineItems = JSON.parse(inv.lineItems as string)
+          if (Array.isArray(lineItems) && lineItems.length > 0) {
+            const subtotal = lineItems.reduce((s: number, item: any) => s + (item.amount || 0), 0)
+            const taxRate = inv.taxRate || 0
+            const taxAmount = (subtotal * taxRate) / 100
+            const discount = inv.discount || 0
+            const shipping = inv.shipping || 0
+            invoiceTotal = subtotal + taxAmount + shipping - discount
           }
+        } catch (e) {
+          // If parsing fails, use the stored amount
         }
+      }
       invoiceTotals.set(inv.id, invoiceTotal)
     })
 
@@ -60,44 +74,41 @@ export default async function DashboardPage() {
         })
         .reduce((sum, inv) => sum + (invoiceTotals.get(inv.id) || 0), 0)
       
-      chartData.push({
-        day: format(date, "MMM dd"),
-        spend: dayTotal,
-      })
+      try {
+        chartData.push({
+          day: format(date, "MMM dd"),
+          spend: dayTotal || 0,
+        })
+      } catch (formatError) {
+        // Fallback if date formatting fails
+        chartData.push({
+          day: date.toLocaleDateString("en-US", { month: "short", day: "2-digit" }),
+          spend: dayTotal || 0,
+        })
+      }
     }
   } catch (error) {
-    console.error("Error fetching stats:", error)
-    stats = { 
-      total: 0, 
-      unpaid: 0, 
-      overdue: 0, 
-      paid: 0,
-      totalRevenue: 0,
-      unpaidAmount: 0,
-      paidAmount: 0,
-      overdueAmount: 0,
-      invoices: []
-    }
+    console.error("Error in dashboard page:", error)
+    // Stats already have default values, chartData is already empty
   }
 
   return (
     <DashboardLayout>
       <DashboardClient
         initialStats={{
-          total: stats.total,
-          unpaid: stats.unpaid,
-          overdue: stats.overdue,
-          paid: stats.paid,
-          totalRevenue: stats.totalRevenue,
-          unpaidAmount: stats.unpaidAmount,
-          paidAmount: stats.paidAmount,
-          overdueAmount: stats.overdueAmount,
+          total: stats.total || 0,
+          unpaid: stats.unpaid || 0,
+          overdue: stats.overdue || 0,
+          paid: stats.paid || 0,
+          totalRevenue: stats.totalRevenue || 0,
+          unpaidAmount: stats.unpaidAmount || 0,
+          paidAmount: stats.paidAmount || 0,
+          overdueAmount: stats.overdueAmount || 0,
         }}
-        initialChartData={chartData}
+        initialChartData={chartData || []}
         userEmail={session.user.email || ""}
-        userPlan={session.user.plan || "FREE"}
+        userPlan={(session.user.plan as "FREE" | "PRO") || "FREE"}
       />
     </DashboardLayout>
   )
 }
-

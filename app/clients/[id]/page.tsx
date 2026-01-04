@@ -44,17 +44,25 @@ export default async function ClientDetailPage({
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold">{client.name}</h1>
-          <p className="text-muted-foreground">{client.email}</p>
+      <div className="space-y-4 md:space-y-6 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Unified Header with proper baseline alignment */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-6 pb-4 border-b border-border">
+          {/* Left: Title Section */}
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight break-words">
+              {client.name}
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1.5 break-all">
+              {client.email}
+            </p>
+          </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Client Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          <Card className="p-6 md:p-8">
+            <CardHeader className="px-0 pt-0 pb-6">
+              <CardTitle className="text-xl font-semibold">Client Information</CardTitle>
+            </CardHeader>
+            <CardContent className="px-0 pb-0 space-y-6">
             <div>
               <p className="text-sm text-muted-foreground">Name</p>
               <p className="font-medium">{client.name}</p>
@@ -70,11 +78,11 @@ export default async function ClientDetailPage({
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Invoice History</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <Card className="p-6 md:p-8">
+            <CardHeader className="px-0 pt-0 pb-6">
+              <CardTitle className="text-xl font-semibold">Invoice History</CardTitle>
+            </CardHeader>
+            <CardContent className="px-0 pb-0">
             {client.invoices.length === 0 ? (
               <p className="text-muted-foreground">No invoices yet for this client.</p>
             ) : (
@@ -126,10 +134,11 @@ export default async function ClientDetailPage({
                     )
                   })}
                 </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </DashboardLayout>
   )

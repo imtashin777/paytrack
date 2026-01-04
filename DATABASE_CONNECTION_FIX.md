@@ -59,3 +59,4 @@ DATABASE_URL="postgresql://postgres:[PASSWORD]@[HOST].pooler.supabase.com:6543/p
 But **direct connection works better for local development!** ✅
 
 
+

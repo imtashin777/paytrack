@@ -51,3 +51,4 @@ DATABASE_URL="postgresql://postgres:zy4Vny9DMBfW@db.kjjnprsuwvlphjlijavq.supabas
 **The code will automatically fix the port if you use 5432 with pooler, but the authentication might still fail if credentials are wrong.**
 
 
+

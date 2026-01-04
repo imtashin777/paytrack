@@ -8,6 +8,7 @@ import { InvoiceStatus } from "@prisma/client"
 import { format } from "date-fns"
 import { MarkAsPaidButton } from "@/components/mark-as-paid-button"
 import { DownloadPDFButton } from "@/components/download-pdf-button"
+import { ResendInvoiceEmailButton } from "@/components/resend-invoice-email-button"
 import { DashboardCurrencySelector, formatCurrency, fetchExchangeRates, CURRENCIES } from "@/components/dashboard-currency-selector"
 import dynamic from "next/dynamic"
 
@@ -37,6 +38,8 @@ interface Invoice {
   taxRate?: number | null
   discount?: number | null
   shipping?: number | null
+  emailSent?: boolean
+  emailSentAt?: Date | null
   client: {
     name: string
     email: string
@@ -111,20 +114,28 @@ export function InvoiceDetailClient({ invoice }: InvoiceDetailClientProps) {
   const formattedAmount = formatCurrency(invoiceTotal, currency, baseCurrency, exchangeRates || undefined)
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Invoice Details</h1>
-          <p className="text-muted-foreground">
-            Invoice #{invoice.id.slice(0, 8)}
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-shrink-0 w-full sm:w-auto">
+    <div className="w-full min-h-screen bg-background text-foreground space-y-8 md:space-y-10 py-8 md:py-10 px-6 lg:px-10">
+      <div className="max-w-[1600px] mx-auto w-full space-y-8 md:space-y-10">
+        {/* Unified Header with premium spacing */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 pb-6 border-b border-border">
+          {/* Left: Title Section */}
+          <div className="flex-1 min-w-0">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground">
+              Invoice Details
+            </h1>
+            <p className="text-base sm:text-lg text-muted-foreground mt-2">
+              Invoice #{invoice.id.slice(0, 8)}
+            </p>
+          </div>
+        
+        {/* Right: Actions Section - Aligned to same baseline */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 lg:flex-shrink-0">
+          <div className="flex-shrink-0">
             <CurrencySelector onCurrencyChange={setCurrency} />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <DownloadPDFButton invoice={invoice} />
+            <ResendInvoiceEmailButton invoiceId={invoice.id} />
             {invoice.status === InvoiceStatus.UNPAID && (
               <MarkAsPaidButton invoiceId={invoice.id} />
             )}
@@ -132,12 +143,12 @@ export function InvoiceDetailClient({ invoice }: InvoiceDetailClientProps) {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Invoice Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card className="p-6 md:p-8">
+              <CardHeader className="px-0 pt-0 pb-6">
+                <CardTitle className="text-xl font-semibold">Invoice Information</CardTitle>
+              </CardHeader>
+              <CardContent className="px-0 pb-0 space-y-6">
             <div>
               <p className="text-sm text-muted-foreground">Status</p>
               <div className="mt-1">{getStatusBadge(invoice.status)}</div>
@@ -171,11 +182,11 @@ export function InvoiceDetailClient({ invoice }: InvoiceDetailClientProps) {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Client Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            <Card className="p-6 md:p-8">
+              <CardHeader className="px-0 pt-0 pb-6">
+                <CardTitle className="text-xl font-semibold">Client Information</CardTitle>
+              </CardHeader>
+              <CardContent className="px-0 pb-0 space-y-6">
             <div>
               <p className="text-sm text-muted-foreground">Name</p>
               <p className="font-medium">{invoice.client.name}</p>
@@ -188,18 +199,21 @@ export function InvoiceDetailClient({ invoice }: InvoiceDetailClientProps) {
         </Card>
       </div>
 
-      {invoice.notes && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Notes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="whitespace-pre-wrap">{invoice.notes}</p>
-          </CardContent>
-        </Card>
-      )}
+          {invoice.notes && (
+            <Card className="p-6 md:p-8">
+              <CardHeader className="px-0 pt-0 pb-6">
+                <CardTitle className="text-xl font-semibold">Notes</CardTitle>
+              </CardHeader>
+              <CardContent className="px-0 pb-0">
+                <p className="whitespace-pre-wrap text-base leading-relaxed">{invoice.notes}</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
+
 
 

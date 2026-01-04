@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DownloadPDFButton } from "@/components/ui/download-pdf-button-inline";
+import { ScheduleInvoiceEmailButton } from "@/components/schedule-invoice-email-button";
 
 interface Contributor {
   src: string;
@@ -169,15 +170,27 @@ export const ProjectDataTable = ({ projects, visibleColumns }: ProjectDataTableP
                       </Badge>
                     </TableCell>
                   )}
-                  <TableCell className="min-w-[140px]">
-                    <div className="flex items-center gap-2 flex-wrap">
+                  <TableCell className="min-w-[180px] sm:min-w-[200px]">
+                    <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                       <Link href={project.repository}>
                         <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
                           View
                         </Button>
                       </Link>
                       {project.invoiceData && (
-                        <DownloadPDFButton invoice={project.invoiceData} />
+                        <>
+                          <DownloadPDFButton invoice={project.invoiceData} />
+                          <ScheduleInvoiceEmailButton
+                            invoiceId={project.id}
+                            clientEmail={project.invoiceData.client.email}
+                            onScheduled={() => {
+                              // Refresh the page to show updated schedule status
+                              if (typeof window !== 'undefined') {
+                                window.location.reload()
+                              }
+                            }}
+                          />
+                        </>
                       )}
                     </div>
                   </TableCell>

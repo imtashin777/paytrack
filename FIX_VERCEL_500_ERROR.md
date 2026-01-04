@@ -122,3 +122,4 @@ If errors persist, check:
 **The error should be fixed once all 3 environment variables are added!** ✅
 
 
+

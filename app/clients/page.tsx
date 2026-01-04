@@ -27,21 +27,32 @@ export default async function ClientsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 md:space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Clients</h1>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Manage your clients and their invoice history
-            </p>
+      <div className="w-full min-h-screen bg-background text-foreground space-y-8 md:space-y-10 py-8 md:py-10 px-6 lg:px-10">
+        <div className="max-w-[1600px] mx-auto w-full space-y-8 md:space-y-10">
+          {/* Unified Header with premium spacing */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 pb-6 border-b border-border">
+            {/* Left: Title Section */}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground">
+                Clients
+              </h1>
+              <p className="text-base sm:text-lg text-muted-foreground mt-2">
+                Manage your clients and their invoice history
+              </p>
+            </div>
+          
+          {/* Right: Actions Section - Aligned to same baseline */}
+          <div className="flex-shrink-0">
+            <Link href="/clients/new">
+              <Button className="w-full sm:w-auto whitespace-nowrap" size="default">
+                Add Client
+              </Button>
+            </Link>
+            </div>
           </div>
-          <Link href="/clients/new" className="w-full sm:w-auto">
-            <Button className="w-full sm:w-auto">Add Client</Button>
-          </Link>
-        </div>
 
-        {clients.length === 0 ? (
-          <Card className="relative overflow-hidden">
+          {clients.length === 0 ? (
+            <Card className="relative overflow-hidden p-6 md:p-8">
             <GlowingEffect
               spread={40}
               glow={true}
@@ -63,7 +74,7 @@ export default async function ClientsPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="rounded-md border relative overflow-hidden overflow-x-auto">
+          <div className="rounded-md border relative overflow-hidden overflow-x-auto w-full">
             <GlowingEffect
               spread={40}
               glow={true}
@@ -77,19 +88,19 @@ export default async function ClientsPage() {
                 <TableRow>
                   <TableHead className="min-w-[120px]">Name</TableHead>
                   <TableHead className="min-w-[200px]">Email</TableHead>
-                  <TableHead className="min-w-[120px]">Total Invoices</TableHead>
+                  <TableHead className="min-w-[120px] text-center sm:text-left">Total Invoices</TableHead>
                   <TableHead className="min-w-[100px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {clients.map((client) => (
                   <TableRow key={client.id}>
-                    <TableCell className="font-medium">{client.name}</TableCell>
-                    <TableCell className="break-all">{client.email}</TableCell>
-                    <TableCell>{client.invoices.length}</TableCell>
+                    <TableCell className="font-medium break-words">{client.name}</TableCell>
+                    <TableCell className="break-all text-sm sm:text-base">{client.email}</TableCell>
+                    <TableCell className="text-center sm:text-left">{client.invoices.length}</TableCell>
                     <TableCell>
                       <Link href={`/clients/${client.id}`}>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
                           View
                         </Button>
                       </Link>
@@ -97,9 +108,10 @@ export default async function ClientsPage() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
-          </div>
-        )}
+              </Table>
+            </div>
+          )}
+        </div>
       </div>
     </DashboardLayout>
   )

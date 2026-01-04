@@ -16,16 +16,24 @@ export default async function NewInvoicePage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-4 md:space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Create Invoice</h1>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Fill in the details to create a new invoice
-            </p>
+      <div className="w-full min-h-screen bg-background text-foreground space-y-8 md:space-y-10 py-8 md:py-10 px-6 lg:px-10">
+        <div className="max-w-[1600px] mx-auto w-full space-y-8 md:space-y-10">
+          {/* Unified Header with premium spacing */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 pb-6 border-b border-border">
+            {/* Left: Title Section */}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground">
+                Create Invoice
+              </h1>
+              <p className="text-base sm:text-lg text-muted-foreground mt-2">
+                Fill in the details to create a new invoice
+              </p>
+            </div>
+          </div>
+          <div className="w-full">
+            <InvoiceForm clients={clients} />
           </div>
         </div>
-        <InvoiceForm clients={clients} />
       </div>
     </DashboardLayout>
   )

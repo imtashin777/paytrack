@@ -66,3 +66,4 @@ After fixing the connection string:
 **Try signing up again after restarting the server!** ✅
 
 
+

@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Plus, Download, RefreshCw, Upload, X } from "lucide-react"
+import { Plus, Download, RefreshCw, Upload, X, Mail } from "lucide-react"
 import { createInvoice } from "@/lib/actions/invoices"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
+import toast from "react-hot-toast"
 
 interface Client {
   id: string
@@ -147,7 +148,7 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
         throw new Error("Please select a client")
       }
 
-      await createInvoice(
+      const result = await createInvoice(
         clientId,
         total,
         dueDate ? new Date(dueDate) : new Date(),
@@ -156,10 +157,25 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
         lineItems.filter(item => item.description), // Only save items with descriptions
         taxRate,
         discount,
-        shipping
+        shipping,
+        true // Send email if checkbox is checked
       )
-      router.push("/invoices")
-      router.refresh()
+
+      // Show success message
+      if (result.emailSent) {
+        toast.success("Invoice created and sent successfully!")
+      } else if (result.emailError) {
+        toast.success("Invoice created successfully!")
+        toast.error("Invoice created, but email failed to send")
+      } else {
+        toast.success("Invoice created successfully!")
+      }
+
+      // Redirect after a short delay to show toast
+      setTimeout(() => {
+        router.push("/invoices")
+        router.refresh()
+      }, 500)
     } catch (err: any) {
       setError(err.message || "Failed to create invoice")
     } finally {
@@ -230,7 +246,7 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
+    <div className="flex flex-col lg:flex-row gap-4 md:gap-6 w-full max-w-full overflow-x-hidden">
       {/* Main Invoice Form */}
       <div className="flex-1 space-y-4 md:space-y-6">
         {error && (
@@ -487,9 +503,9 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
             </Button>
           </div>
 
-          {/* Financial Summary */}
-          <div className="flex justify-end">
-            <div className="w-full sm:w-80 space-y-2">
+          {/* Financial Summary - Fully Responsive */}
+          <div className="flex justify-end w-full">
+            <div className="w-full max-w-full sm:w-80 space-y-2">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
                 <span className="font-medium">{formatCurrency(subtotal)}</span>
@@ -510,12 +526,13 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
                 </div>
                 <span className="font-medium">{formatCurrency(taxAmount)}</span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 w-full">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => setDiscount(discount === 0 ? 10 : 0)}
+                  className="w-full sm:w-auto sm:flex-1"
                 >
                   + Discount
                 </Button>
@@ -524,6 +541,7 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
                   variant="outline"
                   size="sm"
                   onClick={() => setShipping(shipping === 0 ? 10 : 0)}
+                  className="w-full sm:w-auto sm:flex-1"
                 >
                   + Shipping
                 </Button>
@@ -594,18 +612,33 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.back()}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Create Invoice"}
-            </Button>
+          {/* Submit Button - Fully Responsive */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
+            {/* Email Info - All invoices are sent automatically */}
+            <div className="flex items-start sm:items-center space-x-2 p-3 sm:p-4 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-800 w-full sm:flex-1">
+              <Mail className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5 sm:mt-0" />
+              <div className="flex-1 min-w-0">
+                <Label className="text-xs sm:text-sm font-medium text-blue-900 dark:text-blue-100 block">
+                  Invoice will be automatically sent via email
+                </Label>
+                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                  This invoice will be sent to the selected client via email
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 sm:gap-4 w-full sm:w-auto">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.back()}
+                className="flex-1 sm:flex-initial"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading} className="flex-1 sm:flex-initial">
+                {loading ? "Creating..." : "Create Invoice"}
+              </Button>
+            </div>
           </div>
         </form>
       </div>

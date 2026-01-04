@@ -2,24 +2,26 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { signOut } from "next-auth/react"
-import { Button } from "@/components/ui/button"
+import { useSession, signOut } from "next-auth/react"
 import {
   LayoutDashboard,
   FileText,
   Users,
   LogOut,
   CreditCard,
-  Menu,
-  X,
+  Settings,
 } from "lucide-react"
+import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar"
+import { FileText as FileTextIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Invoices", href: "/invoices", icon: FileText },
   { name: "Clients", href: "/clients", icon: Users },
+  { name: "Billing", href: "/billing", icon: CreditCard },
+  { name: "Settings", href: "/settings", icon: Settings },
 ]
 
 export function DashboardLayout({
@@ -27,124 +29,140 @@ export function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [mounted, setMounted] = useState(false)
+  const { data: session } = useSession()
   const pathname = usePathname()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [open, setOpen] = useState(false) // Start closed by default
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  // No loading check - render immediately
+  // Server-side already verified authentication
+
+  // Create links array with active state
+  const links = navigation.map((item) => {
+    const isActive = pathname === item.href
+    const IconComponent = item.icon
+    return {
+      label: item.name,
+      href: item.href,
+      icon: (
+        <div className={cn(
+          "h-10 w-10 flex items-center justify-center rounded-lg flex-shrink-0 transition-colors",
+          isActive 
+            ? "bg-primary text-primary-foreground" 
+            : "bg-muted text-muted-foreground hover:bg-muted/80"
+        )}>
+          <IconComponent className="h-5 w-5" />
+        </div>
+      ),
+      isActive,
+    }
+  })
+
+  // Get user email or default
+  const userEmail = session?.user?.email || "User"
+  const userInitials = userEmail
+    .split("@")[0]
+    .substring(0, 2)
+    .toUpperCase()
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b">
-        <div className="flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-xl font-bold whitespace-nowrap">
-              PayTrack
-            </Link>
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-2">
-              {navigation.map((item) => {
-                const isActive = mounted && pathname === item.href
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                      isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.name}</span>
-                  </Link>
-                )
-              })}
-            </nav>
-          </div>
-          
-          {/* Desktop Actions */}
-          <div className="hidden md:flex items-center space-x-2">
-            <Link href="/billing">
-              <Button variant="outline" size="sm">
-                <CreditCard className="h-4 w-4 mr-2" />
-                Billing
-              </Button>
-            </Link>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
-            </Button>
+    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row w-full">
+      <Sidebar open={open} setOpen={setOpen}>
+        <SidebarBody className="justify-between gap-10">
+          <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+            {/* Logo */}
+            {open ? <PayTrackLogo /> : <PayTrackLogoIcon />}
+
+            {/* Navigation Links */}
+            <div className="mt-8 flex flex-col gap-2">
+              {links.map((link, idx) => (
+                <SidebarLink
+                  key={idx}
+                  link={link}
+                  className={cn(
+                    link.isActive && "bg-accent text-accent-foreground"
+                  )}
+                />
+              ))}
+            </div>
           </div>
 
-          {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </Button>
+          {/* User Section & Sign Out */}
+          <div className="flex flex-col gap-2 pt-4 border-t border-border">
+            {/* User Avatar/Email */}
+            <SidebarLink
+              link={{
+                label: userEmail,
+                href: "#",
+                icon: (
+                  <div className="h-10 w-10 flex-shrink-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">
+                    {userInitials}
+                  </div>
+                ),
+              }}
+              className="cursor-default hover:bg-transparent"
+              onClick={(e: React.MouseEvent) => {
+                e.preventDefault()
+              }}
+            />
+
+            {/* Sign Out */}
+            <SidebarLink
+              link={{
+                label: "Sign Out",
+                href: "#",
+                icon: (
+                  <div className="h-10 w-10 flex items-center justify-center rounded-lg flex-shrink-0 bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors">
+                    <LogOut className="h-5 w-5" />
+                  </div>
+                ),
+              }}
+              className="text-muted-foreground"
+              onClick={(e: React.MouseEvent) => {
+                e.preventDefault()
+                signOut({ callbackUrl: "/auth/signin" })
+              }}
+            />
+          </div>
+        </SidebarBody>
+      </Sidebar>
+
+      {/* Main Content Area - Premium Wide Layout */}
+      <main className="flex-1 flex flex-col overflow-hidden bg-background text-foreground w-full min-w-0 pt-14 md:pt-0">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden w-full">
+          {children}
         </div>
-
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t bg-background">
-            <nav className="flex flex-col p-4 space-y-2">
-              {navigation.map((item) => {
-                const isActive = mounted && pathname === item.href
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                      isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.name}</span>
-                  </Link>
-                )
-              })}
-              <div className="pt-2 border-t space-y-2">
-                <Link href="/billing" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    Billing
-                  </Button>
-                </Link>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start"
-                  onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
-              </div>
-            </nav>
-          </div>
-        )}
-      </div>
-      <main className="container mx-auto px-4 py-4 md:py-8">{children}</main>
+      </main>
     </div>
   )
 }
 
+// PayTrack Logo Component (Expanded)
+export const PayTrackLogo = () => {
+  return (
+    <Link
+      href="/dashboard"
+      className="font-normal flex space-x-2 items-center text-sm text-foreground py-1 relative z-20"
+    >
+      <div className="h-5 w-6 bg-primary rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0 flex items-center justify-center">
+        <FileTextIcon className="h-3 w-3 text-primary-foreground" />
+      </div>
+      <span className="font-bold text-foreground whitespace-pre">
+        PayTrack
+      </span>
+    </Link>
+  )
+}
+
+// PayTrack Logo Icon (Collapsed)
+export const PayTrackLogoIcon = () => {
+  return (
+    <Link
+      href="/dashboard"
+      className="font-normal flex items-center justify-center text-sm text-foreground py-1 relative z-20 w-full"
+    >
+      <div className="h-10 w-10 bg-primary rounded-lg flex-shrink-0 flex items-center justify-center">
+        <FileTextIcon className="h-5 w-5 text-primary-foreground" />
+      </div>
+    </Link>
+  )
+}

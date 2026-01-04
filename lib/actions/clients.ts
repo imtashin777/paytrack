@@ -13,15 +13,29 @@ export async function getClients() {
 
   const clients = await prisma.client.findMany({
     where: { userId: session.user.id },
-    include: {
-      invoices: {
-        orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      // Only include invoice count, not full invoice data (faster)
+      _count: {
+        select: {
+          invoices: true,
+        },
       },
     },
     orderBy: { createdAt: "desc" },
   })
-
-  return clients
+  
+  // Map to match expected interface with invoice count
+  return clients.map(client => ({
+    id: client.id,
+    name: client.name,
+    email: client.email,
+    createdAt: client.createdAt,
+    invoices: Array(client._count.invoices).fill(null), // Array with correct length for compatibility
+  }))
 }
 
 export async function getClient(id: string) {
@@ -34,6 +48,13 @@ export async function getClient(id: string) {
     where: { id, userId: session.user.id },
     include: {
       invoices: {
+        select: {
+          id: true,
+          amount: true,
+          status: true,
+          dueDate: true,
+          createdAt: true,
+        },
         orderBy: { createdAt: "desc" },
       },
     },
@@ -65,6 +86,8 @@ export async function createClient(name: string, email: string) {
 
   return client
 }
+
+
 
 
 

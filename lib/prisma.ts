@@ -56,6 +56,11 @@ export const prisma =
         url: fixedDatabaseUrl,
       },
     },
+    // Performance optimizations
+    transactionOptions: {
+      maxWait: 5000, // Max wait time for a transaction
+      timeout: 10000, // Transaction timeout
+    },
   })
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
