@@ -28,12 +28,15 @@ export default function SignInPage() {
   }) => {
     try {
       setError(null)
+      console.log("Attempting login...")
       
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
         redirect: false,
       })
+
+      console.log("Login result:", result)
 
       if (result?.error) {
         // Show more specific error messages
@@ -49,11 +52,12 @@ export default function SignInPage() {
       } 
       
       if (result?.ok) {
+        console.log("Login successful, redirecting...")
         // Use hard redirect to ensure session is recognized
         window.location.href = "/dashboard"
       } else {
+        console.error("Login failed - result:", result)
         setError("Login failed. Please try again.")
-        console.error("Sign in result:", result)
       }
     } catch (err) {
       console.error("Sign in exception:", err)
