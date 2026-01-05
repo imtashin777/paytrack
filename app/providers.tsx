@@ -90,7 +90,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary>
       <SessionProvider 
-        basePath={process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).pathname : undefined}
         refetchInterval={0}
         refetchOnWindowFocus={true}
       >
