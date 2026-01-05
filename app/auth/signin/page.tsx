@@ -49,10 +49,8 @@ export default function SignInPage() {
       } 
       
       if (result?.ok) {
-        // Wait a moment for session to be set, then redirect
-        await new Promise(resolve => setTimeout(resolve, 100))
-        router.push("/dashboard")
-        router.refresh()
+        // Use hard redirect to ensure session is recognized
+        window.location.href = "/dashboard"
       } else {
         setError("Login failed. Please try again.")
         console.error("Sign in result:", result)
