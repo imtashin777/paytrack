@@ -58,11 +58,11 @@ export default async function ClientDetailPage({
           </div>
         </div>
 
-          <Card className="p-6 md:p-8">
-            <CardHeader className="px-0 pt-0 pb-6">
-              <CardTitle className="text-xl font-semibold">Client Information</CardTitle>
-            </CardHeader>
-            <CardContent className="px-0 pb-0 space-y-6">
+        <Card className="p-6 md:p-8">
+          <CardHeader className="px-0 pt-0 pb-6">
+            <CardTitle className="text-xl font-semibold">Client Information</CardTitle>
+          </CardHeader>
+          <CardContent className="px-0 pb-0 space-y-6">
             <div>
               <p className="text-sm text-muted-foreground">Name</p>
               <p className="font-medium">{client.name}</p>
@@ -78,11 +78,11 @@ export default async function ClientDetailPage({
           </CardContent>
         </Card>
 
-          <Card className="p-6 md:p-8">
-            <CardHeader className="px-0 pt-0 pb-6">
-              <CardTitle className="text-xl font-semibold">Invoice History</CardTitle>
-            </CardHeader>
-            <CardContent className="px-0 pb-0">
+        <Card className="p-6 md:p-8">
+          <CardHeader className="px-0 pt-0 pb-6">
+            <CardTitle className="text-xl font-semibold">Invoice History</CardTitle>
+          </CardHeader>
+          <CardContent className="px-0 pb-0">
             {client.invoices.length === 0 ? (
               <p className="text-muted-foreground">No invoices yet for this client.</p>
             ) : (
@@ -134,11 +134,10 @@ export default async function ClientDetailPage({
                     )
                   })}
                 </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   )

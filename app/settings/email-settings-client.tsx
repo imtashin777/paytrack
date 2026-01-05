@@ -333,7 +333,7 @@ export function EmailSettingsClient({
             <AlertTitle>How It Works</AlertTitle>
             <AlertDescription className="text-sm space-y-2 mt-2">
               <p>
-                When you create an invoice and check "Send invoice via email":
+                When you create an invoice and check &quot;Send invoice via email&quot;:
               </p>
               <ol className="list-decimal list-inside space-y-1 ml-2">
                 <li>Invoice is created in the database</li>

@@ -241,3 +241,4 @@ Your invoice email feature is now fully functional! Users can:
 
 **Need Help?** Check Resend documentation: https://resend.com/docs
 
+

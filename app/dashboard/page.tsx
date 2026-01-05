@@ -14,7 +14,7 @@ export default async function DashboardPage() {
   }
 
   // Initialize with default values
-  let stats = {
+  let stats: Awaited<ReturnType<typeof getInvoiceStats>> = {
     total: 0,
     unpaid: 0,
     overdue: 0,

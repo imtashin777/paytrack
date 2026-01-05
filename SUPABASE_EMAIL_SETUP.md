@@ -203,3 +203,4 @@ Each email includes:
 
 **Note**: All invoices are sent automatically via your configured Supabase email service. Make sure SMTP is properly configured in your Supabase project settings.
 
+

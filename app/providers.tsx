@@ -84,39 +84,6 @@ if (typeof window !== "undefined") {
       return false
     }
   }, true)
-  
-  // Override React's error handling if possible
-  if (window.React?.createRoot) {
-    const originalCreateRoot = window.React.createRoot
-    // Try to wrap createRoot to catch errors
-    try {
-      window.React.createRoot = function(...args: any[]) {
-        try {
-          return originalCreateRoot.apply(this, args)
-        } catch (error: any) {
-          const errorStr = String(error?.message || "")
-          const stackStr = String(error?.stack || "")
-          
-          if (
-            errorStr.includes("React error #299") ||
-            errorStr.includes("Minified React error #299") ||
-            stackStr.includes("chrome-extension://") ||
-            stackStr.includes("embed_script.js")
-          ) {
-            console.warn("Suppressed extension React error")
-            // Return a dummy root object to prevent crash
-            return {
-              render: () => {},
-              unmount: () => {},
-            } as any
-          }
-          throw error
-        }
-      }
-    } catch (e) {
-      // If we can't override, that's okay
-    }
-  }
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {

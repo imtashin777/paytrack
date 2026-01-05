@@ -32,8 +32,8 @@ const nextConfig = {
       '@radix-ui/react-avatar',
       '@radix-ui/react-tooltip',
     ],
-    // Optimize CSS
-    optimizeCss: true,
+    // Optimize CSS (disabled - requires critters package)
+    // optimizeCss: true,
   },
   // Performance optimizations
   poweredByHeader: false,

@@ -161,3 +161,4 @@ Or in Dashboard: **Edge Functions → send-invoice-email → Logs**
 
 **Once deployed, all invoices will automatically send emails via your configured Supabase/Resend email service!** 🎉
 
+

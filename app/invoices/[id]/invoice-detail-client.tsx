@@ -143,73 +143,72 @@ export function InvoiceDetailClient({ invoice }: InvoiceDetailClientProps) {
         </div>
       </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card className="p-6 md:p-8">
-              <CardHeader className="px-0 pt-0 pb-6">
-                <CardTitle className="text-xl font-semibold">Invoice Information</CardTitle>
-              </CardHeader>
-              <CardContent className="px-0 pb-0 space-y-6">
-            <div>
-              <p className="text-sm text-muted-foreground">Status</p>
-              <div className="mt-1">{getStatusBadge(invoice.status)}</div>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Amount</p>
-              <p className="text-2xl font-bold">
-                {formattedAmount}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Due Date</p>
-              <p className="font-medium">
-                {format(new Date(invoice.dueDate), "MMMM dd, yyyy")}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Created</p>
-              <p className="font-medium">
-                {format(new Date(invoice.createdAt), "MMMM dd, yyyy")}
-              </p>
-            </div>
-            {invoice.paidAt && (
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card className="p-6 md:p-8">
+            <CardHeader className="px-0 pt-0 pb-6">
+              <CardTitle className="text-xl font-semibold">Invoice Information</CardTitle>
+            </CardHeader>
+            <CardContent className="px-0 pb-0 space-y-6">
               <div>
-                <p className="text-sm text-muted-foreground">Paid At</p>
-                <p className="font-medium">
-                  {format(new Date(invoice.paidAt), "MMMM dd, yyyy")}
+                <p className="text-sm text-muted-foreground">Status</p>
+                <div className="mt-1">{getStatusBadge(invoice.status)}</div>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Amount</p>
+                <p className="text-2xl font-bold">
+                  {formattedAmount}
                 </p>
               </div>
-            )}
-          </CardContent>
-        </Card>
+              <div>
+                <p className="text-sm text-muted-foreground">Due Date</p>
+                <p className="font-medium">
+                  {format(new Date(invoice.dueDate), "MMMM dd, yyyy")}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Created</p>
+                <p className="font-medium">
+                  {format(new Date(invoice.createdAt), "MMMM dd, yyyy")}
+                </p>
+              </div>
+              {invoice.paidAt && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Paid At</p>
+                  <p className="font-medium">
+                    {format(new Date(invoice.paidAt), "MMMM dd, yyyy")}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-            <Card className="p-6 md:p-8">
-              <CardHeader className="px-0 pt-0 pb-6">
-                <CardTitle className="text-xl font-semibold">Client Information</CardTitle>
-              </CardHeader>
-              <CardContent className="px-0 pb-0 space-y-6">
-            <div>
-              <p className="text-sm text-muted-foreground">Name</p>
-              <p className="font-medium">{invoice.client.name}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Email</p>
-              <p className="font-medium">{invoice.client.email}</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-          {invoice.notes && (
-            <Card className="p-6 md:p-8">
-              <CardHeader className="px-0 pt-0 pb-6">
-                <CardTitle className="text-xl font-semibold">Notes</CardTitle>
-              </CardHeader>
-              <CardContent className="px-0 pb-0">
-                <p className="whitespace-pre-wrap text-base leading-relaxed">{invoice.notes}</p>
-              </CardContent>
-            </Card>
-          )}
+          <Card className="p-6 md:p-8">
+            <CardHeader className="px-0 pt-0 pb-6">
+              <CardTitle className="text-xl font-semibold">Client Information</CardTitle>
+            </CardHeader>
+            <CardContent className="px-0 pb-0 space-y-6">
+              <div>
+                <p className="text-sm text-muted-foreground">Name</p>
+                <p className="font-medium">{invoice.client.name}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Email</p>
+                <p className="font-medium">{invoice.client.email}</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {invoice.notes && (
+          <Card className="p-6 md:p-8">
+            <CardHeader className="px-0 pt-0 pb-6">
+              <CardTitle className="text-xl font-semibold">Notes</CardTitle>
+            </CardHeader>
+            <CardContent className="px-0 pb-0">
+              <p className="whitespace-pre-wrap text-base leading-relaxed">{invoice.notes}</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )

@@ -108,3 +108,4 @@ Once configured, **ALL invoices will automatically send emails** when created!
 
 **Dashboard Link:** https://app.supabase.com → Your Project → Settings → Edge Functions → Secrets
 
+

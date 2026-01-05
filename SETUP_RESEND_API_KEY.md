@@ -96,3 +96,4 @@ Once configured, **all invoices will automatically send emails** when created!
 
 **Next Step:** Add this to Supabase Edge Function secrets and deploy the function!
 
+

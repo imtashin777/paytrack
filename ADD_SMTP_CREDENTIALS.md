@@ -48,3 +48,4 @@ When deploying to Vercel, add these same environment variables:
 
 **Your SMTP is now configured!** 🎉
 
+

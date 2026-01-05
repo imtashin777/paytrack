@@ -37,3 +37,4 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_EDGE_FUNCTION_EMAIL_URL=https://your-project.supabase.co/functions/v1/send-invoice-email
 ```
 
+
