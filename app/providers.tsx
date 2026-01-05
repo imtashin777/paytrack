@@ -89,7 +89,11 @@ if (typeof window !== "undefined") {
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary>
-      <SessionProvider>
+      <SessionProvider 
+        basePath={process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).pathname : undefined}
+        refetchInterval={0}
+        refetchOnWindowFocus={true}
+      >
         {/* GlobalLoading disabled - was causing slow page transitions */}
         {children}
         <Toaster position="top-right" />
