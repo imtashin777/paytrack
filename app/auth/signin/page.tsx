@@ -49,8 +49,11 @@ export default function SignInPage() {
       } 
       
       if (result?.ok) {
-        // Force a hard redirect to ensure session is set
-        window.location.href = "/dashboard"
+        // Refresh to ensure session is loaded, then redirect
+        router.refresh()
+        setTimeout(() => {
+          router.push("/dashboard")
+        }, 100)
       } else {
         setError("Login failed. Please try again.")
         console.error("Sign in result:", result)
