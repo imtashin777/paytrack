@@ -28,7 +28,6 @@ export default function SignInPage() {
   }) => {
     try {
       setError(null)
-      console.log("Attempting login...")
       
       const result = await signIn("credentials", {
         email: data.email,
@@ -36,33 +35,24 @@ export default function SignInPage() {
         redirect: false,
       })
 
-      console.log("Login result:", result)
-
       if (result?.error) {
-        // Show more specific error messages
         if (result.error === "CredentialsSignin") {
           setError("Invalid email or password. Please check your credentials and try again.")
-        } else if (result.error.includes("configuration") || result.error.includes("secret")) {
-          setError("Server configuration error. Please contact support.")
         } else {
           setError(`Login failed: ${result.error}`)
         }
-        console.error("Sign in error:", result.error)
         return
       } 
       
       if (result?.ok) {
-        console.log("Login successful, redirecting...")
-        // Use hard redirect to ensure session is recognized
+        // Redirect immediately
         window.location.href = "/dashboard"
       } else {
-        console.error("Login failed - result:", result)
-        setError("Login failed. Please try again.")
+        setError("Login failed. Please check your credentials.")
       }
     } catch (err) {
       console.error("Sign in exception:", err)
-      const errorMessage = err instanceof Error ? err.message : "Something went wrong. Please try again."
-      setError(errorMessage)
+      setError("An error occurred. Please try again.")
     }
   }
 
