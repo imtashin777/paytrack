@@ -32,9 +32,31 @@ export default function SignInPage() {
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: true,
-        callbackUrl: "/dashboard",
+        redirect: false,
       })
+
+      if (result?.error) {
+        // Show more specific error messages
+        if (result.error === "CredentialsSignin") {
+          setError("Invalid email or password. Please check your credentials and try again.")
+        } else if (result.error.includes("configuration") || result.error.includes("secret")) {
+          setError("Server configuration error. Please contact support.")
+        } else {
+          setError(`Login failed: ${result.error}`)
+        }
+        console.error("Sign in error:", result.error)
+        return
+      } 
+      
+      if (result?.ok) {
+        // Wait a moment for session to be set, then redirect
+        await new Promise(resolve => setTimeout(resolve, 100))
+        router.push("/dashboard")
+        router.refresh()
+      } else {
+        setError("Login failed. Please try again.")
+        console.error("Sign in result:", result)
+      }
     } catch (err) {
       console.error("Sign in exception:", err)
       const errorMessage = err instanceof Error ? err.message : "Something went wrong. Please try again."
