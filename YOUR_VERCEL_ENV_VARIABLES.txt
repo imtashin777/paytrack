@@ -1,0 +1,65 @@
+===========================================
+VERCEL ENVIRONMENT VARIABLES - READY TO PASTE
+===========================================
+
+Copy each variable below into Vercel:
+Vercel Dashboard → Your Project → Settings → Environment Variables
+
+===========================================
+
+1. NEXTAUTH_SECRET
+   Key: NEXTAUTH_SECRET
+   Value: Rt9O3yF7eVBKV2LwqMT2lsSIzXM95vzydbYE1GjsjeY=
+   Environments: ✅ Production ✅ Preview ✅ Development
+
+===========================================
+
+2. NEXTAUTH_URL
+   Key: NEXTAUTH_URL
+   Value: https://invoice-puce-ten.vercel.app
+   Environments: ✅ Production ✅ Preview ✅ Development
+   
+   ⚠️ NOTE: Using primary production domain. Both domains work, but use this one.
+
+===========================================
+
+3. DATABASE_URL
+   Key: DATABASE_URL
+   Value: postgresql://postgres.kjjnprsuwvlphjlijavq:HE6q5osW6JYhbUGU@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1
+   Environments: ✅ Production ✅ Preview ✅ Development
+
+   ⚠️ NOTE: Changed port from 5432 to 6543 (pooler mode)
+   ⚠️ NOTE: Added pgbouncer parameters for connection pooling
+
+===========================================
+
+4. NEXT_PUBLIC_SUPABASE_URL
+   Key: NEXT_PUBLIC_SUPABASE_URL
+   Value: https://kjjnprsuwvlphjlijavq.supabase.co
+   Environments: ✅ Production ✅ Preview ✅ Development
+
+   ⚠️ Get this from: Supabase Dashboard → Settings → API → Project URL
+
+===========================================
+
+5. NEXT_PUBLIC_SUPABASE_ANON_KEY
+   Key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+   Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtqam5wcnN1d3ZscGhqbGlqYXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY2ODc5MzcsImV4cCI6MjA4MjI2MzkzN30.TXLa_IXfT45r2xOLkbb50S9QgifcQskRilCEa6-GJsw
+   Environments: ✅ Production ✅ Preview ✅ Development
+
+   ✅ This is your anon public key from Supabase
+
+===========================================
+
+INSTRUCTIONS:
+1. Go to: https://vercel.com/dashboard
+2. Click your project
+3. Go to: Settings → Environment Variables
+4. Click "Add New" for each variable above
+5. Paste Key and Value
+6. Check all 3 environments (Production, Preview, Development)
+7. Click "Save"
+8. After adding all 5, go to Deployments → Click "..." → Redeploy
+
+===========================================
+

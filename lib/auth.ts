@@ -77,6 +77,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production' || process.env.VERCEL === '1',
+        // Don't set domain - let browser handle it automatically
       },
     },
   },

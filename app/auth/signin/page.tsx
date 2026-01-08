@@ -35,6 +35,7 @@ export default function SignInPage() {
         email: data.email,
         password: data.password,
         redirect: false,
+        callbackUrl: "/dashboard",
       })
 
       console.log("Sign in result:", result)
@@ -52,10 +53,14 @@ export default function SignInPage() {
       } 
       
       if (result?.ok) {
-        console.log("Sign in successful, redirecting to dashboard")
-        // Use router.push for better navigation
-        router.push("/dashboard")
-        router.refresh()
+        console.log("Sign in successful, waiting for session to be established...")
+        
+        // Wait a moment for the session cookie to be set
+        await new Promise(resolve => setTimeout(resolve, 100))
+        
+        // Use window.location for a hard redirect to ensure session is recognized
+        // This forces a full page reload which ensures the session cookie is read
+        window.location.href = "/dashboard"
       } else {
         setError("Login failed. Please check your credentials and try again.")
       }
