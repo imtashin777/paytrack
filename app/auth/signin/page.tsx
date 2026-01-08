@@ -28,41 +28,33 @@ export default function SignInPage() {
   }) => {
     try {
       setError(null)
-      
+
       console.log("Attempting to sign in with email:", data.email)
-      
+
+      /**
+       * New flow:
+       * - We let NextAuth handle redirects (`redirect: true`)
+       * - After successful login, NextAuth will redirect to `/redirect`
+       * - `/redirect` will validate the session and send the user to `/dashboard`
+       */
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: false,
-        callbackUrl: "/dashboard",
+        redirect: true,
+        callbackUrl: "/redirect",
       })
 
-      console.log("Sign in result:", result)
-
-      if (result?.error) {
+      // When redirect: true, NextAuth will navigate away on success.
+      // If we get here and there's an error, surface it to the user.
+      if (result && "error" in result && result.error) {
         console.error("Sign in error:", result.error)
         if (result.error === "CredentialsSignin") {
           setError("Invalid email or password. Please check your credentials and try again.")
-        } else if (result.error.includes("fetch")) {
+        } else if (result.error.toLowerCase().includes("fetch")) {
           setError("Unable to connect to the server. Please check your internet connection and try again.")
         } else {
           setError(`Login failed: ${result.error}. Please try again or contact support.`)
         }
-        return
-      } 
-      
-      if (result?.ok) {
-        console.log("Sign in successful, waiting for session to be established...")
-        
-        // Wait a moment for the session cookie to be set
-        await new Promise(resolve => setTimeout(resolve, 100))
-        
-        // Use window.location for a hard redirect to ensure session is recognized
-        // This forces a full page reload which ensures the session cookie is read
-        window.location.href = "/dashboard"
-      } else {
-        setError("Login failed. Please check your credentials and try again.")
       }
     } catch (err) {
       console.error("Sign in exception:", err)
