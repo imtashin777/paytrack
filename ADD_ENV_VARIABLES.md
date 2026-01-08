@@ -91,3 +91,4 @@ The "fetch failed" error happens because your Next.js app doesn't know where you
 **After adding these 2 variables, everything will work!** ✅
 
 
+

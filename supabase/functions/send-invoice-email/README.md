@@ -38,3 +38,4 @@ SUPABASE_EDGE_FUNCTION_EMAIL_URL=https://your-project.supabase.co/functions/v1/s
 ```
 
 
+

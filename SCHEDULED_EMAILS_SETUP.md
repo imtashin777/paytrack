@@ -109,3 +109,4 @@ CRON_SECRET=your-secret-key-here
 **Note:** Scheduled emails are processed in batches. The cron job runs every few minutes, so emails may be sent slightly after the scheduled time (within the cron interval).
 
 
+

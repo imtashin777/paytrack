@@ -97,3 +97,4 @@ supabase functions deploy send-invoice-email
 **Migration Complete!** All invoices now use Supabase email service automatically.
 
 
+

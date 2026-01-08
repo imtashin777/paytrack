@@ -210,3 +210,4 @@ Everything is configured correctly. Just add the 3 environment variables in Verc
 
 
 
+
