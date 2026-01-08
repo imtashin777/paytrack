@@ -57,9 +57,10 @@ export default function SignUpPage() {
         setError("Account created but failed to sign in. Please try signing in manually.")
         return
       } else if (result?.ok) {
-        // Redirect to dashboard
-        router.push("/dashboard")
-        router.refresh()
+        // Wait for session cookie to be set
+        await new Promise(resolve => setTimeout(resolve, 200))
+        // Hard redirect to dashboard - ensures session is recognized
+        window.location.href = "/dashboard"
       }
     } catch (err) {
       console.error("Signup error:", err)

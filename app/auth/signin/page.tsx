@@ -28,33 +28,39 @@ export default function SignInPage() {
   }) => {
     try {
       setError(null)
-
+      
       console.log("Attempting to sign in with email:", data.email)
-
-      /**
-       * New flow:
-       * - We let NextAuth handle redirects (`redirect: true`)
-       * - After successful login, NextAuth will redirect to `/redirect`
-       * - `/redirect` will validate the session and send the user to `/dashboard`
-       */
+      
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: true,
-        callbackUrl: "/redirect",
+        redirect: false,
       })
 
-      // When redirect: true, NextAuth will navigate away on success.
-      // If we get here and there's an error, surface it to the user.
-      if (result && "error" in result && result.error) {
+      console.log("Sign in result:", result)
+
+      if (result?.error) {
         console.error("Sign in error:", result.error)
         if (result.error === "CredentialsSignin") {
           setError("Invalid email or password. Please check your credentials and try again.")
-        } else if (result.error.toLowerCase().includes("fetch")) {
+        } else if (result.error.includes("fetch")) {
           setError("Unable to connect to the server. Please check your internet connection and try again.")
         } else {
           setError(`Login failed: ${result.error}. Please try again or contact support.`)
         }
+        return
+      } 
+      
+      if (result?.ok) {
+        console.log("Sign in successful, waiting for session to be established...")
+        
+        // Wait for session cookie to be set
+        await new Promise(resolve => setTimeout(resolve, 200))
+        
+        // Hard redirect to dashboard - ensures session is recognized by middleware
+        window.location.href = "/dashboard"
+      } else {
+        setError("Login failed. Please check your credentials and try again.")
       }
     } catch (err) {
       console.error("Sign in exception:", err)
