@@ -54,10 +54,11 @@ export default function SignInPage() {
       if (result?.ok) {
         console.log("Sign in successful, waiting for session to be established...")
         
-        // Wait for session cookie to be set
+        // Wait for session cookie to be set (200ms delay)
         await new Promise(resolve => setTimeout(resolve, 200))
         
         // Hard redirect to dashboard - ensures session is recognized by middleware
+        // Using window.location.href forces full page reload so middleware can validate session
         window.location.href = "/dashboard"
       } else {
         setError("Login failed. Please check your credentials and try again.")
