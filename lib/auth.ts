@@ -3,9 +3,13 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "./prisma"
 import bcrypt from "bcryptjs"
 
-// Validate required environment variables (only in development)
-if (process.env.NODE_ENV === "development" && !process.env.NEXTAUTH_SECRET) {
-  console.warn(
+// Auto-detect NEXTAUTH_URL for Vercel
+// Note: Vercel automatically sets VERCEL_URL, but NEXTAUTH_URL should be explicitly set
+// for production deployments to ensure proper callback URLs
+
+// Validate required environment variables
+if (!process.env.NEXTAUTH_SECRET) {
+  console.error(
     "⚠️ NEXTAUTH_SECRET is not set. Please add it to your environment variables.\n" +
     "Run: openssl rand -base64 32\n" +
     "Or visit: https://generate-secret.vercel.app/32"
@@ -21,31 +25,39 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            console.error("Missing email or password")
+            return null
+          }
+
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+          })
+
+          if (!user) {
+            console.error(`User not found: ${credentials.email}`)
+            return null
+          }
+
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          )
+
+          if (!isPasswordValid) {
+            console.error(`Invalid password for user: ${credentials.email}`)
+            return null
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            plan: user.plan,
+          }
+        } catch (error) {
+          console.error("Authorization error:", error)
           return null
-        }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        })
-
-        if (!user) {
-          return null
-        }
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        )
-
-        if (!isPasswordValid) {
-          return null
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          plan: user.plan,
         }
       },
     }),
@@ -85,5 +97,6 @@ export const authOptions: NextAuthOptions = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development",
 }
 

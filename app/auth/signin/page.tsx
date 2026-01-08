@@ -29,30 +29,39 @@ export default function SignInPage() {
     try {
       setError(null)
       
+      console.log("Attempting to sign in with email:", data.email)
+      
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
         redirect: false,
       })
 
+      console.log("Sign in result:", result)
+
       if (result?.error) {
+        console.error("Sign in error:", result.error)
         if (result.error === "CredentialsSignin") {
           setError("Invalid email or password. Please check your credentials and try again.")
+        } else if (result.error.includes("fetch")) {
+          setError("Unable to connect to the server. Please check your internet connection and try again.")
         } else {
-          setError(`Login failed: ${result.error}`)
+          setError(`Login failed: ${result.error}. Please try again or contact support.`)
         }
         return
       } 
       
       if (result?.ok) {
-        // Redirect immediately
-        window.location.href = "/dashboard"
+        console.log("Sign in successful, redirecting to dashboard")
+        // Use router.push for better navigation
+        router.push("/dashboard")
+        router.refresh()
       } else {
-        setError("Login failed. Please check your credentials.")
+        setError("Login failed. Please check your credentials and try again.")
       }
     } catch (err) {
       console.error("Sign in exception:", err)
-      setError("An error occurred. Please try again.")
+      setError("An error occurred. Please try again. If the problem persists, check the browser console for details.")
     }
   }
 
